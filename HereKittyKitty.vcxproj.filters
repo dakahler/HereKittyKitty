@@ -34,6 +34,9 @@
     <ClInclude Include="EasyDriver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="LiquidCrystalEx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Timer.cpp">
@@ -43,6 +46,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EasyDriver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LiquidCrystalEx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

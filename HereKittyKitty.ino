@@ -1,20 +1,12 @@
+#include "LiquidCrystalEx.h"
 #include "EasyDriver.h"
 #include "ButtonPress.h"
 #include "Timer.h"
 #include <Wire.h>
 #include <Time.h>
 #include <RTClib.h>
-#include <LiquidCrystal.h>
 #include <EEPROM.h>
 #include <Stepper.h>
-
-RTC_DS1307 RTC;
-String timeString;
-LiquidCrystal lcd(7, 8, 9, 10, 11 , 12);
-
-uint8_t feedHours[12];
-int currentFeedIndex = 0;
-int previousLoopHour = 0;
 
 const int stepsPerRevolution = 200;
 const int compartmentsPerRevolution = 6;
@@ -28,71 +20,72 @@ const int feedNumDaily = 5; // number of feedings in a day
 const int feedStartTime = 6; // hour
 const int feedSpeed = 5;
 
-EasyDriver g_easyDriver(2, 3, 4, 5, 6);
 
-Timer g_updateLcdTimer(1000, []()
+static RTC_DS1307 s_rtc;
+static LiquidCrystalEx s_lcd(7, 8, 9, 10, 11 , 12);
+static EasyDriver s_easyDriver(2, 3, 4, 5, 6);
+
+static uint8_t feedHours[12];
+static int s_currentFeedIndex = 0;
+static int s_previousLoopHour = 0;
+
+static Timer s_updateLcdTimer(1000, []()
 {
-	DateTime now = RTC.now();
-	lcd.setCursor(0, 0);
+	DateTime now = s_rtc.now();
 
 	char timeString[18];
 	sprintf(timeString, "%02d:%02d:%02d %s",
 		hourFormat12(now.hour()), now.minute(), now.second(), isAM(now.hour()) ? "AM" : "PM");
 
-	lcd.print(timeString);
+	s_lcd.Print(0, 0, timeString);
+	s_lcd.Print(13, 0, feedOunces);
+	s_lcd.Print(15, 0, feedNumDaily);
 
-	lcd.setCursor(13, 0);
-	lcd.print(feedOunces);
+	sprintf(timeString, "Next: %02d:00 %s", hourFormat12(feedHours[s_currentFeedIndex]),
+		isAM(feedHours[s_currentFeedIndex]) ? "AM" : "PM");
 
-	lcd.setCursor(15, 0);
-	lcd.print(feedNumDaily);
-
-	sprintf(timeString, "Next: %02d:00 %s", hourFormat12(feedHours[currentFeedIndex]),
-		isAM(feedHours[currentFeedIndex]) ? "AM" : "PM");
-
-	lcd.setCursor(0, 1);
-	lcd.print(timeString);
+	s_lcd.Print(0, 1, timeString);
 });
 
-Timer g_motorFeedTimer(feedSpeed, []()
+static Timer s_motorFeedTimer(feedSpeed, []()
 {
-	g_easyDriver.Step();
+	s_easyDriver.Step();
 }, feedSteps * 8, false,
 
 []() // on start
 {
-	g_easyDriver.EnableMotor();
-	g_easyDriver.SetDirection(true);
+	s_easyDriver.EnableMotor();
+	s_easyDriver.SetDirection(true);
 },
 
 []() // on stop
 {
-	g_easyDriver.DisableMotor();
+	s_easyDriver.DisableMotor();
 });
 
-ButtonPress g_feedNowButton(26, []()
+static ButtonPress s_feedNowButton(26, []()
 {
 	feedNow();
 });
 
-IUpdatable* g_updatables[] { &g_updateLcdTimer, &g_motorFeedTimer, &g_feedNowButton };
+static IUpdatable* s_updatables[] { &s_updateLcdTimer, &s_motorFeedTimer, &s_feedNowButton };
 
-void feedNow()
+static void feedNow()
 {
-	g_motorFeedTimer.Restart();
+	s_motorFeedTimer.Restart();
 }
 
 void setup()
 { 
 	Serial.begin(9600);
 	Wire.begin();
-	RTC.begin();
-	if (!RTC.isrunning())
+	s_rtc.begin();
+	if (!s_rtc.isrunning())
 	{
 		// TODO: Need better way of syncing time
 		Serial.println("RTC is NOT running!");
 		// following line sets the RTC to the date & time this sketch was compiled
-		RTC.adjust(DateTime(__DATE__, __TIME__));
+		s_rtc.adjust(DateTime(__DATE__, __TIME__));
 	}
 
 	int feedInterval = 24 / feedNumDaily;
@@ -103,39 +96,39 @@ void setup()
 
 		if (!setCurrentFeedIndex)
 		{
-			if (feedHours[i] >= RTC.now().hour())
+			if (feedHours[i] >= s_rtc.now().hour())
 			{
 				setCurrentFeedIndex = true;
-				currentFeedIndex = i;
+				s_currentFeedIndex = i;
 			}
 		}
 	}
 
-	previousLoopHour = RTC.now().hour();
+	s_previousLoopHour = s_rtc.now().hour();
 
-	lcd.begin(16, 2);
-	g_updateLcdTimer.FireNow();
+	s_lcd.begin(16, 2);
+	s_updateLcdTimer.FireNow();
 }
 
 void loop()
 {
-	DateTime now = RTC.now();
-	if (now.hour() != previousLoopHour)
+	DateTime now = s_rtc.now();
+	if (now.hour() != s_previousLoopHour)
 	{
-		previousLoopHour = now.hour();
-		if (feedHours[currentFeedIndex] == now.hour())
+		s_previousLoopHour = now.hour();
+		if (feedHours[s_currentFeedIndex] == now.hour())
 		{
 			// Food!
 			feedNow();
-			currentFeedIndex++;
-			if (currentFeedIndex >= feedNumDaily)
+			s_currentFeedIndex++;
+			if (s_currentFeedIndex >= feedNumDaily)
 			{
-				currentFeedIndex = 0;
+				s_currentFeedIndex = 0;
 			}
 		}
 	}
 
-	for (IUpdatable* u : g_updatables)
+	for (IUpdatable* u : s_updatables)
 	{
 		u->Update();
 	}
