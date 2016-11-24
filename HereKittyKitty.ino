@@ -1,3 +1,5 @@
+#include "ButtonPress.h"
+#include "Timer.h"
 #include <Wire.h>
 #include <Time.h>
 #include <RTClib.h>
@@ -15,7 +17,7 @@ RTC_DS1307 RTC;
 String timeString;
 LiquidCrystal lcd(7, 8, 9, 10, 11 , 12);
 
-uint8_t* feedHours;
+uint8_t feedHours[12];
 int currentFeedIndex = 0;
 int previousLoopHour = 0;
 
@@ -31,6 +33,60 @@ const int feedNumDaily = 5; // number of feedings in a day
 const int feedStartTime = 6; // hour
 const int feedSpeed = 5;
 
+Timer g_updateLcdTimer(1000, []()
+{
+	DateTime now = RTC.now();
+	lcd.setCursor(0, 0);
+
+	char timeString[18];
+	sprintf(timeString, "%02d:%02d:%02d %s",
+		hourFormat12(now.hour()), now.minute(), now.second(), isAM(now.hour()) ? "AM" : "PM");
+
+	lcd.print(timeString);
+
+	lcd.setCursor(13, 0);
+	lcd.print(feedOunces);
+
+	lcd.setCursor(15, 0);
+	lcd.print(feedNumDaily);
+
+	sprintf(timeString, "Next: %02d:%02d %s", hourFormat12(feedHours[currentFeedIndex]),
+		isAM(feedHours[currentFeedIndex]) ? "AM" : "PM");
+
+	lcd.setCursor(0, 1);
+	lcd.print(timeString);
+});
+
+Timer g_motorFeedTimer(feedSpeed, []()
+{
+	static bool isHigh = true;
+	digitalWrite(stp, isHigh ? HIGH : LOW);
+	isHigh = !isHigh;
+
+}, feedSteps * 8, false,
+
+[]() // on start
+{
+	// Enable motor
+	digitalWrite(EN, LOW);
+
+	// Pull direction pin low to move "forward"
+	digitalWrite(dir, LOW);
+},
+
+[]() // on stop
+{
+	// Disable motor
+	digitalWrite(EN, HIGH);
+});
+
+ButtonPress g_feedNowButton(16, []()
+{
+
+});
+
+IUpdatable* g_updatables[] { &g_updateLcdTimer, &g_motorFeedTimer, &g_feedNowButton };
+
 //Reset Easy Driver pins to default states
 void resetEDPins()
 {
@@ -43,22 +99,7 @@ void resetEDPins()
 
 void feedNow()
 {
-	// Enable motor
-	digitalWrite(EN, LOW);
-
-	digitalWrite(dir, LOW); // Pull direction pin low to move "forward"
-
-	// Have to multiply steps by 8 because we're in high-resolution mode
-	for(int x = 0; x < feedSteps * 8; x++)  // Loop the forward stepping enough times for motion to be visible
-	{
-		digitalWrite(stp, HIGH); // Trigger one step forward
-		delay(feedSpeed);
-		digitalWrite(stp, LOW); // Pull step pin low so it can be triggered again
-		delay(feedSpeed);
-	}
-
-	// Disable motor
-	digitalWrite(EN, HIGH);
+	g_motorFeedTimer.Restart();
 }
 
 void setup()
@@ -68,6 +109,7 @@ void setup()
 	RTC.begin();
 	if (!RTC.isrunning())
 	{
+		// TODO: Need better way of syncing time
 		Serial.println("RTC is NOT running!");
 		// following line sets the RTC to the date & time this sketch was compiled
 		RTC.adjust(DateTime(__DATE__, __TIME__));
@@ -80,10 +122,7 @@ void setup()
 	pinMode(EN, OUTPUT);
 	resetEDPins(); //Set step, direction, microstep and enable pins to default states
 
-	lcd.begin(16, 2);
-
 	int feedInterval = 24 / feedNumDaily;
-	feedHours = new uint8_t[feedNumDaily];
 	bool setCurrentFeedIndex = false;
 	for (int i = 0; i < feedNumDaily; i++)
 	{
@@ -103,32 +142,14 @@ void setup()
 
 	digitalWrite(MS1, HIGH); //Pull MS1, and MS2 high to set logic to 1/8th microstep resolution
 	digitalWrite(MS2, HIGH);
+
+	lcd.begin(16, 2);
+	g_updateLcdTimer.FireNow();
 }
 
-bool test = false;
-
-void loop () {
-    DateTime now = RTC.now(); 
-	lcd.setCursor(0,0);
-
-	if (!test)	
-	{
-		test = true;
-		feedNow();
-	}
-
-	// Wow Arduino string concat is painful
-	timeString = String();
-	padDigit(hourFormat12(now.hour()), timeString);
-	timeString += ":";
-	padDigit(now.minute(), timeString);
-	timeString += ":";
-	padDigit(now.second(), timeString);
-	timeString += " ";
-	timeString += isAM(now.hour()) ? "AM" : "PM";
-
-	lcd.print(timeString);
-
+void loop()
+{
+	DateTime now = RTC.now();
 	if (now.hour() != previousLoopHour)
 	{
 		previousLoopHour = now.hour();
@@ -144,20 +165,8 @@ void loop () {
 		}
 	}
 
-	lcd.setCursor(13, 0);
-	lcd.print(feedOunces);
-
-	lcd.setCursor(15, 0);
-	lcd.print(feedNumDaily);
-
-	String nextFeedString = String();
-	nextFeedString += "Next: ";
-	padDigit(hourFormat12(feedHours[currentFeedIndex]), nextFeedString);
-	nextFeedString += ":00 ";
-	nextFeedString += isAM(feedHours[currentFeedIndex]) ? "AM" : "PM";
-
-	lcd.setCursor(0, 1);
-	lcd.print(nextFeedString);
-
-    delay(1000);
+	for (IUpdatable* u : g_updatables)
+	{
+		u->Update();
+	}
 }
