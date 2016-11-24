@@ -6,6 +6,8 @@ ButtonPress::ButtonPress(int pinNum, void(*callback)(void))
 {
 	assert(m_callback != NULL);
 
+	pinMode(m_pinNum, INPUT_PULLUP);
+
 	// Assume pin state at init is the "unpressed" state
 	m_unpressedPinState = digitalRead(m_pinNum);
 	m_lastPinState = m_unpressedPinState;

@@ -35,6 +35,10 @@ void Timer::FireNow()
 	if (m_numRemainingIterations > 0)
 	{
 		m_numRemainingIterations--;
+		if (m_numRemainingIterations == 0)
+		{
+			Stop();
+		}
 	}
 }
 

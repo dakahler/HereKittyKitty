@@ -1,3 +1,4 @@
+#include "EasyDriver.h"
 #include "ButtonPress.h"
 #include "Timer.h"
 #include <Wire.h>
@@ -6,12 +7,6 @@
 #include <LiquidCrystal.h>
 #include <EEPROM.h>
 #include <Stepper.h>
-
-#define stp 2
-#define dir 3
-#define MS1 4
-#define MS2 5
-#define EN  6
 
 RTC_DS1307 RTC;
 String timeString;
@@ -33,6 +28,8 @@ const int feedNumDaily = 5; // number of feedings in a day
 const int feedStartTime = 6; // hour
 const int feedSpeed = 5;
 
+EasyDriver g_easyDriver(2, 3, 4, 5, 6);
+
 Timer g_updateLcdTimer(1000, []()
 {
 	DateTime now = RTC.now();
@@ -50,7 +47,7 @@ Timer g_updateLcdTimer(1000, []()
 	lcd.setCursor(15, 0);
 	lcd.print(feedNumDaily);
 
-	sprintf(timeString, "Next: %02d:%02d %s", hourFormat12(feedHours[currentFeedIndex]),
+	sprintf(timeString, "Next: %02d:00 %s", hourFormat12(feedHours[currentFeedIndex]),
 		isAM(feedHours[currentFeedIndex]) ? "AM" : "PM");
 
 	lcd.setCursor(0, 1);
@@ -59,43 +56,26 @@ Timer g_updateLcdTimer(1000, []()
 
 Timer g_motorFeedTimer(feedSpeed, []()
 {
-	static bool isHigh = true;
-	digitalWrite(stp, isHigh ? HIGH : LOW);
-	isHigh = !isHigh;
-
+	g_easyDriver.Step();
 }, feedSteps * 8, false,
 
 []() // on start
 {
-	// Enable motor
-	digitalWrite(EN, LOW);
-
-	// Pull direction pin low to move "forward"
-	digitalWrite(dir, LOW);
+	g_easyDriver.EnableMotor();
+	g_easyDriver.SetDirection(true);
 },
 
 []() // on stop
 {
-	// Disable motor
-	digitalWrite(EN, HIGH);
+	g_easyDriver.DisableMotor();
 });
 
-ButtonPress g_feedNowButton(16, []()
+ButtonPress g_feedNowButton(26, []()
 {
-
+	feedNow();
 });
 
 IUpdatable* g_updatables[] { &g_updateLcdTimer, &g_motorFeedTimer, &g_feedNowButton };
-
-//Reset Easy Driver pins to default states
-void resetEDPins()
-{
-	digitalWrite(stp, LOW);
-	digitalWrite(dir, LOW);
-	digitalWrite(MS1, LOW);
-	digitalWrite(MS2, LOW);
-	digitalWrite(EN, HIGH);
-}
 
 void feedNow()
 {
@@ -115,13 +95,6 @@ void setup()
 		RTC.adjust(DateTime(__DATE__, __TIME__));
 	}
 
-	pinMode(stp, OUTPUT);
-	pinMode(dir, OUTPUT);
-	pinMode(MS1, OUTPUT);
-	pinMode(MS2, OUTPUT);
-	pinMode(EN, OUTPUT);
-	resetEDPins(); //Set step, direction, microstep and enable pins to default states
-
 	int feedInterval = 24 / feedNumDaily;
 	bool setCurrentFeedIndex = false;
 	for (int i = 0; i < feedNumDaily; i++)
@@ -139,9 +112,6 @@ void setup()
 	}
 
 	previousLoopHour = RTC.now().hour();
-
-	digitalWrite(MS1, HIGH); //Pull MS1, and MS2 high to set logic to 1/8th microstep resolution
-	digitalWrite(MS2, HIGH);
 
 	lcd.begin(16, 2);
 	g_updateLcdTimer.FireNow();

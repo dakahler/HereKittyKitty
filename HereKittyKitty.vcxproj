@@ -125,12 +125,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ButtonPress.h" />
+    <ClInclude Include="EasyDriver.h" />
     <ClInclude Include="IUpdatable.h" />
     <ClInclude Include="Timer.h" />
     <ClInclude Include="__vm\.HereKittyKitty.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ButtonPress.cpp" />
+    <ClCompile Include="EasyDriver.cpp" />
     <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
