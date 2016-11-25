@@ -12,7 +12,7 @@
 class EasyDriver
 {
 public:
-	EasyDriver(int stpPin, int dirPin, int ms1Pin, int ms2Pin, int enPin,
+	EasyDriver(int stepPin, int directionPin, int ms1Pin, int ms2Pin, int enabledPin,
 		bool useMicrostepping = true);
 
 	void EnableMotor() const;
@@ -23,11 +23,11 @@ public:
 private:
 	void ResetPins() const;
 
-	int m_stpPin;
-	int m_dirPin;
+	int m_stepPin;
+	int m_directionPin;
 	int m_ms1Pin;
 	int m_ms2Pin;
-	int m_enPin;
+	int m_enabledPin;
 	bool m_useMicrostepping;
 
 	bool m_nextStep = true;
