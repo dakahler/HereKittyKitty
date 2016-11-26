@@ -193,8 +193,6 @@ void Program::UpdateLcd()
 			hourFormat12(now.hour()), now.minute(), now.second(), isAM(now.hour()) ? "AM" : "PM");
 
 		s_lcd.Print(0, 0, timeString);
-		s_lcd.Print(13, 0, s_eepromData.OuncesPerMeal);
-		s_lcd.Print(15, 0, s_eepromData.MealsPerDay);
 
 		sprintf(timeString, "Next: %02d:00 %s", hourFormat12(s_feedHours[s_currentFeedIndex]),
 			isAM(s_feedHours[s_currentFeedIndex]) ? "AM" : "PM");
