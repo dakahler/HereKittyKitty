@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <Time.h>
 #include "EEPRomAnything.h"
+#include "AudioPlayer.h"
 
 LiquidCrystalEx Program::s_lcd(7, 8, 9, 10, 11, 12);
 Timer Program::s_updateLcdTimer(1000, Program::UpdateLcd);
@@ -21,6 +22,21 @@ int Program::s_previousLoopHour;
 Program* Program::m_instance = NULL;
 Program::Page Program::s_currentPage = Program::Page::Main;
 Program::eepromData Program::s_eepromData;
+
+AudioPlayer::Note notes[8] =
+{
+	AudioPlayer::Note(Notes::NOTE_C4, 4),
+	AudioPlayer::Note(Notes::NOTE_G3, 8),
+	AudioPlayer::Note(Notes::NOTE_G3, 8),
+	AudioPlayer::Note(Notes::NOTE_A3, 4),
+	AudioPlayer::Note(Notes::NOTE_G3, 4),
+	AudioPlayer::Note(Notes::NOTE_SILENCE, 4),
+	AudioPlayer::Note(Notes::NOTE_B3, 4),
+	AudioPlayer::Note(Notes::NOTE_C4, 4),
+};
+
+AudioPlayer::Tune tune(notes, sizeof(notes) / sizeof(notes[0]));
+AudioPlayer audioPlayer(tune, 28);
 
 Program* Program::GetInstance()
 {
@@ -100,6 +116,7 @@ void Program::Update()
 	s_motorFeedTimer.Update();
 	s_actionButton.Update();
 	s_exitSettingsTimer.Update();
+	audioPlayer.Update();
 }
 
 void Program::DoAction()
@@ -164,6 +181,7 @@ void Program::StartMotor()
 void Program::StopMotor()
 {
 	s_easyDriver.DisableMotor();
+	audioPlayer.Play();
 }
 
 void Program::StepMotor()

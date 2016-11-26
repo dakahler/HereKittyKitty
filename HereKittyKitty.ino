@@ -1,3 +1,4 @@
+#include "AudioPlayer.h"
 #include "Program.h"
 
 void setup() { }

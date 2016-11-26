@@ -8,7 +8,6 @@ Timer::Timer(unsigned long intervalMs, void(*callback)(void), int numIterations,
 	  m_onStartCallback(onStartCallback), m_onStopCallback(onStopCallback)
 {
 	assert(m_intervalMs > 0);
-	assert(m_callback != NULL);
 
 	if (startImmediately)
 	{
@@ -30,7 +29,7 @@ void Timer::Update()
 void Timer::FireNow()
 {
 	m_previousMillis = millis();
-	m_callback();
+	CallCallback();
 
 	if (m_numRemainingIterations > 0)
 	{
@@ -67,4 +66,12 @@ void Timer::Restart()
 {
 	m_numRemainingIterations = m_numOriginalIterations;
 	Start();
+}
+
+void Timer::CallCallback()
+{
+	if (m_callback != NULL)
+	{
+		m_callback();
+	}
 }

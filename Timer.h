@@ -20,7 +20,9 @@ public:
 	void Start();
 	void Restart();
 
-private:
+protected:
+	virtual void CallCallback();
+
 	unsigned long m_intervalMs;
 	void (*m_callback)(void);
 	void(*m_onStartCallback)(void);
