@@ -20,6 +20,8 @@ void Timer::Update()
 	if (!m_IsRunning || m_numRemainingIterations == 0)
 		return;
 
+	Serial.println(m_previousMillis);
+
 	if (millis() - m_previousMillis >= m_intervalMs)
 	{
 		FireNow();
@@ -29,7 +31,6 @@ void Timer::Update()
 void Timer::FireNow()
 {
 	m_previousMillis = millis();
-	CallCallback();
 
 	if (m_numRemainingIterations > 0)
 	{
@@ -39,6 +40,8 @@ void Timer::FireNow()
 			Stop();
 		}
 	}
+
+	CallCallback();
 }
 
 void Timer::Stop()
@@ -66,6 +69,16 @@ void Timer::Restart()
 {
 	m_numRemainingIterations = m_numOriginalIterations;
 	Start();
+}
+
+void Timer::SetInterval(unsigned long interval)
+{
+	m_intervalMs = interval;
+}
+
+void Timer::SetIterations(int numIterations)
+{
+	m_numOriginalIterations = numIterations;
 }
 
 void Timer::CallCallback()

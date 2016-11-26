@@ -34,18 +34,14 @@ private:
 	static void StopMotor();
 	static void StepMotor();
 	static void ExitSettings();
+	static void RecalculateMealTimes();
 
 	static const int stepsPerRevolution = 200;
 	static const int compartmentsPerRevolution = 6;
 	static const int stepsPerCompartment = stepsPerRevolution / compartmentsPerRevolution;
 	static const int ouncesPerCompartment = 1;
 
-	static const int feedOunces = 4; // one compartment per ounce
-	static const int feedSteps = (feedOunces / ouncesPerCompartment) * stepsPerCompartment;
-
-	static const int feedNumDaily = 5; // number of feedings in a day
-	static const int feedStartTime = 6; // hour
-	static const int feedSpeed = 25;
+	static const unsigned long feedSpeed = 25;
 	static const int maxOuncesPerMeal = 8;
 	static const int maxMealsPerDay = 8;
 

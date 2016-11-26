@@ -19,6 +19,8 @@ public:
 	void Stop();
 	void Start();
 	void Restart();
+	void SetInterval(unsigned long interval);
+	void SetIterations(int numIterations);
 
 protected:
 	virtual void CallCallback();
