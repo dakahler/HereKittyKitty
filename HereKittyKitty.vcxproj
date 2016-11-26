@@ -126,6 +126,7 @@
   <ItemGroup>
     <ClInclude Include="ButtonPress.h" />
     <ClInclude Include="EasyDriver.h" />
+    <ClInclude Include="EEPRomAnything.h" />
     <ClInclude Include="IUpdatable.h" />
     <ClInclude Include="LiquidCrystalEx.h" />
     <ClInclude Include="Program.h" />

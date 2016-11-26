@@ -4,19 +4,23 @@
 #include "Util.h"
 #include <Wire.h>
 #include <Time.h>
-#include <pnew.cpp>
+#include "EEPRomAnything.h"
 
 LiquidCrystalEx Program::s_lcd(7, 8, 9, 10, 11, 12);
 Timer Program::s_updateLcdTimer(1000, Program::UpdateLcd);
-Timer Program::s_motorFeedTimer(Program::feedSpeed, Program::StepMotor, Program::feedSteps * 8, false,
+Timer Program::s_motorFeedTimer(Program::feedSpeed, Program::StepMotor, Program::feedSteps, false,
 	Program::StartMotor, Program::StopMotor);
-ButtonPress Program::s_feedNowButton(26, Program::FeedNow);
+Timer Program::s_exitSettingsTimer(60 * 1000, Program::ExitSettings, 1, false);
+ButtonPress Program::s_actionButton(26, Program::DoAction);
+ButtonPress Program::s_changePageButton(28, Program::ChangePage);
 RTC_DS1307 Program::s_rtc;
-EasyDriver Program::s_easyDriver(2, 3, 4, 5, 6);
+EasyDriver Program::s_easyDriver(2, 3, 4, 5, 6, false);
 uint8_t Program::s_feedHours[12];
 int Program::s_currentFeedIndex;
 int Program::s_previousLoopHour;
 Program* Program::m_instance = NULL;
+Program::Page Program::s_currentPage = Program::Page::Main;
+Program::eepromData Program::s_eepromData;
 
 Program* Program::GetInstance()
 {
@@ -30,6 +34,17 @@ Program* Program::GetInstance()
 
 Program::Program()
 {
+	short existingVersion;
+	EEPROM_readAnything(0, existingVersion);
+	if (s_eepromData.Version != existingVersion)
+	{
+		EEPROM_writeAnything(0, s_eepromData);
+	}
+	else
+	{
+		EEPROM_readAnything(0, s_eepromData);
+	}
+
 	Serial.begin(9600);
 	Wire.begin();
 	s_rtc.begin();
@@ -72,7 +87,7 @@ void Program::Update()
 		if (s_feedHours[s_currentFeedIndex] == now.hour())
 		{
 			// Food!
-			FeedNow();
+			DoAction();
 			s_currentFeedIndex++;
 			if (s_currentFeedIndex >= feedNumDaily)
 			{
@@ -83,30 +98,61 @@ void Program::Update()
 
 	s_updateLcdTimer.Update();
 	s_motorFeedTimer.Update();
-	s_feedNowButton.Update();
+	s_actionButton.Update();
+	s_exitSettingsTimer.Update();
 }
 
-void Program::FeedNow()
+void Program::DoAction()
 {
-	s_motorFeedTimer.Restart();
+	if (s_currentPage == Page::Main)
+	{
+		s_motorFeedTimer.Restart();
+	}
+	else if (s_currentPage == Page::OuncesPerMeal)
+	{
+		s_eepromData.OuncesPerMeal = (s_eepromData.OuncesPerMeal + 1) / maxOuncesPerMeal;
+	}
+	else if (s_currentPage == Page::MealsPerDay)
+	{
+		s_eepromData.MealsPerDay = (s_eepromData.MealsPerDay + 1) / maxMealsPerDay;
+	}
+}
+
+void Program::ChangePage()
+{
+	s_currentPage = (Page)((s_currentPage + 1) % Page::NumPages);
+	s_exitSettingsTimer.Restart();
 }
 
 void Program::UpdateLcd()
 {
-	DateTime now = s_rtc.now();
+	if (s_currentPage == Page::Main)
+	{
+		DateTime now = s_rtc.now();
 
-	char timeString[18];
-	sprintf(timeString, "%02d:%02d:%02d %s",
-		hourFormat12(now.hour()), now.minute(), now.second(), isAM(now.hour()) ? "AM" : "PM");
+		char timeString[18];
+		sprintf(timeString, "%02d:%02d:%02d %s",
+			hourFormat12(now.hour()), now.minute(), now.second(), isAM(now.hour()) ? "AM" : "PM");
 
-	s_lcd.Print(0, 0, timeString);
-	s_lcd.Print(13, 0, feedOunces);
-	s_lcd.Print(15, 0, feedNumDaily);
+		s_lcd.Print(0, 0, timeString);
+		s_lcd.Print(13, 0, feedOunces);
+		s_lcd.Print(15, 0, feedNumDaily);
 
-	sprintf(timeString, "Next: %02d:00 %s", hourFormat12(s_feedHours[s_currentFeedIndex]),
-		isAM(s_feedHours[s_currentFeedIndex]) ? "AM" : "PM");
+		sprintf(timeString, "Next: %02d:00 %s", hourFormat12(s_feedHours[s_currentFeedIndex]),
+			isAM(s_feedHours[s_currentFeedIndex]) ? "AM" : "PM");
 
-	s_lcd.Print(0, 1, timeString);
+		s_lcd.Print(0, 1, timeString);
+	}
+	else if (s_currentPage == Page::OuncesPerMeal)
+	{
+		s_lcd.Print(0, 0, "Ounces Per Meal:");
+		s_lcd.Print(0, 1, s_eepromData.OuncesPerMeal);
+	}
+	else if (s_currentPage == Page::MealsPerDay)
+	{
+		s_lcd.Print(0, 0, "Meals Per Day:");
+		s_lcd.Print(0, 1, s_eepromData.MealsPerDay);
+	}
 }
 
 void Program::StartMotor()
@@ -123,4 +169,10 @@ void Program::StopMotor()
 void Program::StepMotor()
 {
 	s_easyDriver.Step();
+}
+
+void Program::ExitSettings()
+{
+	s_currentPage = Page::Main;
+	EEPROM_writeAnything(0, s_eepromData);
 }
