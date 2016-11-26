@@ -64,6 +64,7 @@ private:
 		Main,
 		OuncesPerMeal,
 		MealsPerDay,
+		StartHour,
 		NumPages
 	};
 
@@ -74,7 +75,7 @@ private:
 		short Version = 0x0101;
 		byte OuncesPerMeal = 4;
 		byte MealsPerDay = 5;
-		byte FirstFeedingHour = 6;
+		byte StartHour = 6;
 	};
 
 	static eepromData s_eepromData;

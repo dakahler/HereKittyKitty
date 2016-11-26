@@ -104,7 +104,7 @@ void Program::RecalculateMealTimes()
 	bool setCurrentFeedIndex = false;
 	for (int i = 0; i < s_eepromData.MealsPerDay; i++)
 	{
-		s_feedHours[i] = s_eepromData.FirstFeedingHour + (feedInterval * i);
+		s_feedHours[i] = s_eepromData.StartHour + (feedInterval * i);
 
 		if (!setCurrentFeedIndex)
 		{
@@ -172,6 +172,17 @@ void Program::DoAction()
 		RecalculateMealTimes();
 		UpdateLcd();
 	}
+	else if (s_currentPage == Page::StartHour)
+	{
+		s_eepromData.StartHour = (s_eepromData.StartHour + 1) % 24;
+		if (s_eepromData.StartHour == 0)
+		{
+			s_lcd.clear();
+		}
+
+		RecalculateMealTimes();
+		UpdateLcd();
+	}
 }
 
 void Program::ChangePage()
@@ -208,6 +219,11 @@ void Program::UpdateLcd()
 	{
 		s_lcd.Print(0, 0, "Meals Per Day:");
 		s_lcd.Print(0, 1, s_eepromData.MealsPerDay);
+	}
+	else if (s_currentPage == Page::StartHour)
+	{
+		s_lcd.Print(0, 0, "Start Hour:");
+		s_lcd.Print(0, 1, s_eepromData.StartHour);
 	}
 }
 
