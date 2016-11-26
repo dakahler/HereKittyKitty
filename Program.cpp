@@ -5,7 +5,7 @@
 #include <Wire.h>
 #include <Time.h>
 #include "EEPRomAnything.h"
-#include "AudioPlayer.h"
+#include "Song_SMB.h"
 
 LiquidCrystalEx Program::s_lcd(7, 8, 9, 10, 11, 12);
 Timer Program::s_updateLcdTimer(1000ul, Program::UpdateLcd);
@@ -22,39 +22,7 @@ int Program::s_previousLoopHour;
 Program* Program::m_instance = NULL;
 Program::Page Program::s_currentPage = Program::Page::Main;
 Program::eepromData Program::s_eepromData;
-
-
-
-AudioPlayer::Note notes[] =
-{
-	AudioPlayer::Note(Notes::NOTE_E7, 12), AudioPlayer::Note(Notes::NOTE_E7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_E7, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_C7, 12), AudioPlayer::Note(Notes::NOTE_E7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-	AudioPlayer::Note(Notes::NOTE_G7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-	AudioPlayer::Note(Notes::NOTE_G6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-
-	AudioPlayer::Note(Notes::NOTE_C7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_G6, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_E6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_A6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_B6, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_AS6, 12), AudioPlayer::Note(Notes::NOTE_A6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-
-	AudioPlayer::Note(Notes::NOTE_G6, 9), AudioPlayer::Note(Notes::NOTE_E7, 9), AudioPlayer::Note(Notes::NOTE_G7, 9),
-	AudioPlayer::Note(Notes::NOTE_A7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_F7, 12), AudioPlayer::Note(Notes::NOTE_G7, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_E7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_C7, 12),
-	AudioPlayer::Note(Notes::NOTE_D7, 12), AudioPlayer::Note(Notes::NOTE_B6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-
-	AudioPlayer::Note(Notes::NOTE_C7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_G6, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_E6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_A6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_B6, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_AS6, 12), AudioPlayer::Note(Notes::NOTE_A6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-
-	AudioPlayer::Note(Notes::NOTE_G6, 9), AudioPlayer::Note(Notes::NOTE_E7, 9), AudioPlayer::Note(Notes::NOTE_G7, 9),
-	AudioPlayer::Note(Notes::NOTE_A7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_F7, 12), AudioPlayer::Note(Notes::NOTE_G7, 12),
-	AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_E7, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_C7, 12),
-	AudioPlayer::Note(Notes::NOTE_D7, 12), AudioPlayer::Note(Notes::NOTE_B6, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12), AudioPlayer::Note(Notes::NOTE_SILENCE, 12),
-};
-
-AudioPlayer::Tune tune(notes, sizeof(notes) / sizeof(notes[0]));
-AudioPlayer audioPlayer(tune, 30);
+AudioPlayer Program::s_audioPlayer(song_smb, 30);
 
 Program* Program::GetInstance()
 {
@@ -140,7 +108,7 @@ void Program::Update()
 	s_actionButton.Update();
 	s_changePageButton.Update();
 	s_exitSettingsTimer.Update();
-	audioPlayer.Update();
+	s_audioPlayer.Update();
 }
 
 void Program::DoAction()
@@ -236,7 +204,7 @@ void Program::StartMotor()
 void Program::StopMotor()
 {
 	s_easyDriver.DisableMotor();
-	audioPlayer.Play();
+	s_audioPlayer.Play();
 }
 
 void Program::StepMotor()

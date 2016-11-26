@@ -15,6 +15,7 @@
 #include "EasyDriver.h"
 #include "Timer.h"
 #include "ButtonPress.h"
+#include "AudioPlayer.h"
 
 class Program : public IUpdatable
 {
@@ -58,6 +59,8 @@ private:
 	static Timer s_exitSettingsTimer;
 	static ButtonPress s_actionButton;
 	static ButtonPress s_changePageButton;
+
+	static AudioPlayer s_audioPlayer;
 
 	enum Page
 	{
