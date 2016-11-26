@@ -18,6 +18,7 @@ void ButtonPress::Update()
 	bool currentPinState = digitalRead(m_pinNum);
 	if (currentPinState != m_lastPinState)
 	{
+		m_lastPinState = currentPinState;
 		if (currentPinState != m_unpressedPinState)
 		{
 			m_callback();
