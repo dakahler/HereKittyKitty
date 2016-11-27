@@ -24,10 +24,10 @@ Program* Program::GetInstance()
 
 Program::Program()
 	: m_lcd(7, 8, 9, 10, 11, 12),
-	m_updateLcdTimer(1000ul, Program::UpdateLcd),
-	m_exitSettingsTimer(60ul * 1000ul, Program::ExitSettings, 1, false),
-	m_actionButton(26, Program::DoAction),
-	m_changePageButton(28, Program::ChangePage)
+	m_updateLcdTimer(1000ul, MethodSlot<Program, const Timer<Program>&>(this, &Program::UpdateLcd)),
+	m_exitSettingsTimer(60ul * 1000ul, MethodSlot<Program, const Timer<Program>&>(this, &Program::ExitSettings), 1, false),
+	m_actionButton(26, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::DoAction)),
+	m_changePageButton(28, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::ChangePage))
 {
 	m_ouncesPerMealPage = PageFactory::Create<OuncesPerMealPage>();
 	m_mealsPerDayPage = PageFactory::Create<MealsPerDayPage>();
@@ -121,7 +121,7 @@ void Program::Update()
 		if (m_feedHours[m_currentFeedIndex] == now.hour())
 		{
 			// Food!
-			DoAction();
+			DoAction(m_actionButton);
 			m_currentFeedIndex++;
 			if (m_currentFeedIndex >= m_mealsPerDayPage->GetMealsPerDay())
 			{
@@ -146,7 +146,7 @@ int Program::GetNextMealHour() const
 	return m_feedHours[m_currentFeedIndex];
 }
 
-void Program::DoAction()
+void Program::DoAction(const ButtonPress<Program>& button)
 {
 	Program* program = Program::GetInstance();
 	program->m_currentPage->InvokeAction();
@@ -154,7 +154,7 @@ void Program::DoAction()
 	program->m_currentPage->UpdateLcd(program->m_lcd);
 }
 
-void Program::ChangePage()
+void Program::ChangePage(const ButtonPress<Program>& button)
 {
 	Program* program = Program::GetInstance();
 	for (unsigned int i = 0; i < PageFactory::GetPages().size(); i++)
@@ -174,16 +174,16 @@ void Program::ChangePage()
 
 	program->m_exitSettingsTimer.Restart();
 	program->m_lcd.clear();
-	UpdateLcd();
+	UpdateLcd(program->m_updateLcdTimer);
 }
 
-void Program::UpdateLcd()
+void Program::UpdateLcd(const Timer<Program>& timer)
 {
 	Program* program = Program::GetInstance();
 	program->m_currentPage->UpdateLcd(program->m_lcd);
 }
 
-void Program::ExitSettings()
+void Program::ExitSettings(const Timer<Program>& timer)
 {
 	Program* program = Program::GetInstance();
 	program->m_currentPage = program->m_mainPage;

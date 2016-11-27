@@ -5,15 +5,15 @@
 #include "LiquidCrystalEx.h"
 #include "Program.h"
 
-EasyDriver MainPage::s_easyDriver(2, 3, 4, 5, 6, false);
-AudioPlayer MainPage::s_audioPlayer(song_smb, 30);
-bool MainPage::isFeeding = false;
-
 // TODO: Taking a reference from another page for a value here is really hacky
 MainPage::MainPage(byte& ouncesPerMeal)
-	: m_motorFeedTimer(c_feedSpeed, MainPage::StepMotor, 100, false,
-		MainPage::StartMotor, MainPage::StopMotor),
-	m_ouncesPerMeal(ouncesPerMeal)
+	: m_motorFeedTimer(c_feedSpeed, MethodSlot<MainPage, const Timer<MainPage>&>(this, &MainPage::StepMotor), 100, false,
+		MethodSlot<MainPage, const Timer<MainPage>&>(this, &MainPage::StartMotor),
+		MethodSlot<MainPage, const Timer<MainPage>&>(this, &MainPage::StopMotor)),
+	m_ouncesPerMeal(ouncesPerMeal),
+	m_isFeeding(false),
+	m_easyDriver(2, 3, 4, 5, 6, false),
+	m_audioPlayer(song_smb, 30)
 {
 	
 }
@@ -21,7 +21,7 @@ MainPage::MainPage(byte& ouncesPerMeal)
 void MainPage::Update()
 {
 	m_motorFeedTimer.Update();
-	s_audioPlayer.Update();
+	m_audioPlayer.Update();
 }
 
 int MainPage::WriteToEepRom(int offset) const
@@ -55,7 +55,7 @@ void MainPage::UpdateLcd(LiquidCrystalEx& lcd)
 
 	lcd.Print(0, 1, timeString);
 
-	if (isFeeding)
+	if (m_isFeeding)
 	{
 		lcd.Print(13, 0, "   ");
 		lcd.Print(13, 0, m_motorFeedTimer.GetIterations());
@@ -66,21 +66,21 @@ void MainPage::UpdateLcd(LiquidCrystalEx& lcd)
 	}
 }
 
-void MainPage::StartMotor()
+void MainPage::StartMotor(const Timer<MainPage>& timer)
 {
-	isFeeding = true;
-	s_easyDriver.EnableMotor();
-	s_easyDriver.SetDirection(true);
+	m_isFeeding = true;
+	m_easyDriver.EnableMotor();
+	m_easyDriver.SetDirection(true);
 }
 
-void MainPage::StopMotor()
+void MainPage::StopMotor(const Timer<MainPage>& timer)
 {
-	isFeeding = false;
-	s_easyDriver.DisableMotor();
-	s_audioPlayer.Play();
+	m_isFeeding = false;
+	m_easyDriver.DisableMotor();
+	m_audioPlayer.Play();
 }
 
-void MainPage::StepMotor()
+void MainPage::StepMotor(const Timer<MainPage>& timer)
 {
-	s_easyDriver.Step();
+	m_easyDriver.Step();
 }

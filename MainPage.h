@@ -27,9 +27,9 @@ public:
 	void UpdateLcd(LiquidCrystalEx& lcd) override;
 
 private:
-	Timer m_motorFeedTimer;
+	Timer<MainPage> m_motorFeedTimer;
 	byte& m_ouncesPerMeal;
-	static bool isFeeding;
+	bool m_isFeeding;
 
 	static const int c_stepsPerRevolution = 200;
 	static const int c_compartmentsPerRevolution = 6;
@@ -37,11 +37,11 @@ private:
 	static const int c_ouncesPerCompartment = 1;
 	static const unsigned long c_feedSpeed = 25;
 
-	static EasyDriver s_easyDriver;
-	static AudioPlayer s_audioPlayer;
-	static void StartMotor();
-	static void StopMotor();
-	static void StepMotor();
+	EasyDriver m_easyDriver;
+	AudioPlayer m_audioPlayer;
+	void StartMotor(const Timer<MainPage>& timer);
+	void StopMotor(const Timer<MainPage>& timer);
+	void StepMotor(const Timer<MainPage>& timer);
 };
 
 #endif

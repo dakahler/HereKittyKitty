@@ -33,10 +33,10 @@ private:
 
 	static Program* m_instance;
 
-	static void DoAction();
-	static void UpdateLcd();
-	static void ExitSettings();
-	static void ChangePage();
+	void DoAction(const ButtonPress<Program>& button);
+	void UpdateLcd(const Timer<Program>& timer);
+	void ExitSettings(const Timer<Program>& timer);
+	void ChangePage(const ButtonPress<Program>& button);
 
 	void RecalculateMealTimes();
 	void Save();
@@ -49,10 +49,10 @@ private:
 	int m_currentFeedIndex;
 	int m_previousLoopHour;
 
-	Timer m_updateLcdTimer;
-	Timer m_exitSettingsTimer;
-	ButtonPress m_actionButton;
-	ButtonPress m_changePageButton;
+	Timer<Program> m_updateLcdTimer;
+	Timer<Program> m_exitSettingsTimer;
+	ButtonPress<Program> m_actionButton;
+	ButtonPress<Program> m_changePageButton;
 
 	OuncesPerMealPage* m_ouncesPerMealPage;
 	MealsPerDayPage* m_mealsPerDayPage;

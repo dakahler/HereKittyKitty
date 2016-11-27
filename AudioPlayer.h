@@ -11,39 +11,85 @@
 
 #include "Timer.h"
 #include "Pitches.h"
+#include <assert.h>
 
-class AudioPlayer : public Timer
+struct Note
+{
+	Note(Notes note, unsigned long duration) : _Note(note), Duration(duration) { }
+
+	Notes _Note;
+	unsigned long Duration;
+};
+
+class Tune
 {
 public:
-	struct Note
+	Tune(const Note* const notes, int numNotes)
+		: m_notes(notes), m_numNotes(numNotes)
 	{
-		Note(Notes note, unsigned long duration) : _Note(note), Duration(duration) { }
+		assert(notes != NULL);
+		assert(m_numNotes > 0);
 
-		Notes _Note;
-		unsigned long Duration;
-	};
+		m_currentNote = 0;
+	}
 
-	class Tune
+	void Reset()
 	{
-	public:
-		Tune(const Note* const notes, int numNotes);
+		m_currentNote = 0;
+	}
 
-		void Reset();
-		const Note& PopNote();
-		int NotesRemaining() const;
+	const Note& PopNote()
+	{
+		return m_notes[m_currentNote++];
+	}
 
-	private:
-		const Note* const m_notes;
-		int m_numNotes;
-		int m_currentNote;
-	};
+	int NotesRemaining() const
+	{
+		return m_numNotes - m_currentNote;
+	}
 
-	AudioPlayer(Tune& tune, int pin);
-	void Play();
+private:
+	const Note* const m_notes;
+	int m_numNotes;
+	int m_currentNote;
+};
+
+class AudioPlayer : public Timer<AudioPlayer>
+{
+public:
+	AudioPlayer(Tune& tune, int pin)
+		: Timer<AudioPlayer>(1, MethodSlot<AudioPlayer, const Timer<AudioPlayer>&>(this, &AudioPlayer::Callback), 1, false), m_tune(tune), m_pin(pin)
+	{
+
+	}
+
+	void Play()
+	{
+		m_tune.Reset();
+		this->FireNow();
+	}
 
 private:
 
-	void CallCallback() override;
+	void Callback(const Timer<AudioPlayer>& timer)
+	{
+		if (m_tune.NotesRemaining() == 0)
+			return;
+
+		const Note& currentNote = m_tune.PopNote();
+
+		// to calculate the note duration, take one second
+		// divided by the note type.
+		//e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+		int noteDuration = 1000 / currentNote.Duration;
+		noTone(m_pin);
+		tone(m_pin, currentNote._Note, noteDuration);
+
+		int pauseBetweenNotesMs = noteDuration * 1.30;
+
+		this->m_intervalMs = currentNote.Duration + pauseBetweenNotesMs;
+		this->Restart();
+	}
 
 	Tune& m_tune;
 	int m_pin;
