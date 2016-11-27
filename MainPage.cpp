@@ -24,12 +24,12 @@ void MainPage::Update()
 	s_audioPlayer.Update();
 }
 
-int MainPage::WriteToEepRom(int offset)
+int MainPage::WriteToEepRom(int offset) const
 {
 	return 0;
 }
 
-int MainPage::ReadFromEepRom(int offset)
+int MainPage::ReadFromEepRom(int offset) const
 {
 	return 0;
 }

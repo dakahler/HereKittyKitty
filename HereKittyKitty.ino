@@ -1,3 +1,4 @@
+#include "PageFactory.h"
 #include "MainPage.h"
 #include "Page.h"
 #include "AudioPlayer.h"

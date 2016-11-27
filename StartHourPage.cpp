@@ -14,12 +14,12 @@ void StartHourPage::Update()
 	
 }
 
-int StartHourPage::WriteToEepRom(int offset)
+int StartHourPage::WriteToEepRom(int offset) const
 {
 	return EEPROM_writeAnything(offset, m_startHour);
 }
 
-int StartHourPage::ReadFromEepRom(int offset)
+int StartHourPage::ReadFromEepRom(int offset) const
 {
 	return EEPROM_readAnything(offset, m_startHour);
 }

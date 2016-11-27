@@ -54,12 +54,10 @@ private:
 	ButtonPress m_actionButton;
 	ButtonPress m_changePageButton;
 
-	OuncesPerMealPage m_ouncesPerMealPage;
-	MealsPerDayPage m_mealsPerDayPage;
-	StartHourPage m_startHourPage;
-	MainPage m_mainPage;
-	
-	IPage* m_pages[4];
+	OuncesPerMealPage* m_ouncesPerMealPage;
+	MealsPerDayPage* m_mealsPerDayPage;
+	StartHourPage* m_startHourPage;
+	MainPage* m_mainPage;
 
 	IPage* m_currentPage = NULL;
 

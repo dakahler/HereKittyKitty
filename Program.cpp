@@ -5,6 +5,7 @@
 #include <Time.h>
 #include "EEPRomAnything.h"
 #include "Util.h"
+#include "PageFactory.h"
 
 Program* Program::m_instance = NULL;
 Program* Program::GetInstance()
@@ -26,18 +27,16 @@ Program::Program()
 	m_updateLcdTimer(1000ul, Program::UpdateLcd),
 	m_exitSettingsTimer(60ul * 1000ul, Program::ExitSettings, 1, false),
 	m_actionButton(26, Program::DoAction),
-	m_changePageButton(28, Program::ChangePage),
-	m_ouncesPerMealPage(),
-	m_mainPage(m_ouncesPerMealPage.m_ouncesPerMeal)
+	m_changePageButton(28, Program::ChangePage)
 {
-	m_pages[0] = &m_mainPage;
-	m_pages[1] = &m_ouncesPerMealPage;
-	m_pages[2] = &m_mealsPerDayPage;
-	m_pages[3] = &m_startHourPage;
+	m_ouncesPerMealPage = PageFactory::Create<OuncesPerMealPage>();
+	m_mealsPerDayPage = PageFactory::Create<MealsPerDayPage>();
+	m_startHourPage = PageFactory::Create<StartHourPage>();
+	m_mainPage = PageFactory::Create<MainPage>(m_ouncesPerMealPage->m_ouncesPerMeal);
 
 	Load();
 
-	m_currentPage = &m_mainPage;
+	m_currentPage = m_mainPage;
 
 	Wire.begin();
 	m_rtc.begin();
@@ -60,10 +59,10 @@ void Program::RecalculateMealTimes()
 {
 	Serial.println("Recalculating...");
 
-	const int feedInterval = 24 / m_mealsPerDayPage.GetMealsPerDay();
-	for (int i = 0; i < m_mealsPerDayPage.GetMealsPerDay(); i++)
+	const int feedInterval = 24 / m_mealsPerDayPage->GetMealsPerDay();
+	for (int i = 0; i < m_mealsPerDayPage->GetMealsPerDay(); i++)
 	{
-		m_feedHours[i] = (m_startHourPage.GetStartHour() + (feedInterval * i)) % 24;
+		m_feedHours[i] = (m_startHourPage->GetStartHour() + (feedInterval * i)) % 24;
 		Serial.print("  ");
 		Serial.print(m_feedHours[i]);
 		Serial.println();
@@ -73,7 +72,7 @@ void Program::RecalculateMealTimes()
 	for (int i = m_rtc.now().hour() + 1, j = 0; j < 24; i++, j++)
 	{
 		i %= 24;
-		for (int k = 0; k < m_mealsPerDayPage.GetMealsPerDay(); k++)
+		for (int k = 0; k < m_mealsPerDayPage->GetMealsPerDay(); k++)
 		{
 			if (m_feedHours[k] == i)
 			{
@@ -90,7 +89,7 @@ void Program::RecalculateMealTimes()
 void Program::Save()
 {
 	int offset = EEPROM_writeAnything(0, Version);
-	for (IPage* page : m_pages)
+	for (const IPage* page : PageFactory::GetPages())
 	{
 		offset += page->WriteToEepRom(offset);
 	}
@@ -106,7 +105,7 @@ void Program::Load()
 	}
 	else
 	{
-		for (IPage* page : m_pages)
+		for (IPage* page : PageFactory::GetPages())
 		{
 			offset += page->ReadFromEepRom(offset);
 		}
@@ -124,14 +123,14 @@ void Program::Update()
 			// Food!
 			DoAction();
 			m_currentFeedIndex++;
-			if (m_currentFeedIndex >= m_mealsPerDayPage.GetMealsPerDay())
+			if (m_currentFeedIndex >= m_mealsPerDayPage->GetMealsPerDay())
 			{
 				m_currentFeedIndex = 0;
 			}
 		}
 	}
 
-	for (IPage* page : m_pages)
+	for (IPage* page : PageFactory::GetPages())
 	{
 		page->Update();
 	}
@@ -158,17 +157,17 @@ void Program::DoAction()
 void Program::ChangePage()
 {
 	Program* program = Program::GetInstance();
-	for (unsigned int i = 0; i < COUNT_OF(program->m_pages); i++)
+	for (unsigned int i = 0; i < PageFactory::GetPages().size(); i++)
 	{
-		if (program->m_currentPage == program->m_pages[i])
+		if (program->m_currentPage == PageFactory::GetPages()[i])
 		{
-			int nextPage = i + 1;
-			if (nextPage == COUNT_OF(program->m_pages))
+			unsigned int nextPage = i + 1;
+			if (nextPage == PageFactory::GetPages().size())
 			{
 				nextPage = 0;
 			}
 
-			program->m_currentPage = program->m_pages[nextPage];
+			program->m_currentPage = PageFactory::GetPages()[nextPage];
 			break;
 		}
 	}
@@ -187,7 +186,7 @@ void Program::UpdateLcd()
 void Program::ExitSettings()
 {
 	Program* program = Program::GetInstance();
-	program->m_currentPage = program->m_pages[0];
+	program->m_currentPage = program->m_mainPage;
 	program->m_lcd.clear();
 	program->Save();
 }

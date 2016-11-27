@@ -14,12 +14,12 @@ void MealsPerDayPage::Update()
 	
 }
 
-int MealsPerDayPage::WriteToEepRom(int offset)
+int MealsPerDayPage::WriteToEepRom(int offset) const
 {
 	return EEPROM_writeAnything(offset, m_mealsPerDay);
 }
 
-int MealsPerDayPage::ReadFromEepRom(int offset)
+int MealsPerDayPage::ReadFromEepRom(int offset) const
 {
 	return EEPROM_readAnything(offset, m_mealsPerDay);
 }

@@ -17,8 +17,8 @@ class IPage : IUpdatable
 {
 public:
 	virtual void Update() = 0;
-	virtual int WriteToEepRom(int offset) = 0;
-	virtual int ReadFromEepRom(int offset) = 0;
+	virtual int WriteToEepRom(int offset) const = 0;
+	virtual int ReadFromEepRom(int offset) const = 0;
 	virtual void InvokeAction() = 0;
 	virtual void UpdateLcd(LiquidCrystalEx& lcd) = 0;
 };

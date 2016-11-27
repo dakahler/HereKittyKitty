@@ -14,12 +14,12 @@ void OuncesPerMealPage::Update()
 	
 }
 
-int OuncesPerMealPage::WriteToEepRom(int offset)
+int OuncesPerMealPage::WriteToEepRom(int offset) const
 {
 	return EEPROM_writeAnything(offset, m_ouncesPerMeal);
 }
 
-int OuncesPerMealPage::ReadFromEepRom(int offset)
+int OuncesPerMealPage::ReadFromEepRom(int offset) const
 {
 	return EEPROM_readAnything(offset, m_ouncesPerMeal);
 }
