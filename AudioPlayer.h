@@ -38,16 +38,14 @@ public:
 		int m_currentNote;
 	};
 
-	AudioPlayer(const Tune& tune, int pin);
+	AudioPlayer(Tune& tune, int pin);
 	void Play();
-	void Pause();
-	void Stop();
 
 private:
 
 	void CallCallback() override;
 
-	const Tune& m_tune;
+	Tune& m_tune;
 	int m_pin;
 
 };

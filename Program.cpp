@@ -14,7 +14,7 @@ Program* Program::GetInstance()
 		m_instance = new Program();
 		if (m_instance == NULL)
 		{
-			Serial.println((int)m_instance);
+			Serial.println("Failed to allocate Program!");
 		}
 	}
 
@@ -89,8 +89,7 @@ void Program::RecalculateMealTimes()
 
 void Program::Save()
 {
-	EEPROM_writeAnything(0, Version);
-	int offset = sizeof(Version);
+	int offset = EEPROM_writeAnything(0, Version);
 	for (IPage* page : m_pages)
 	{
 		offset += page->WriteToEepRom(offset);
@@ -100,14 +99,13 @@ void Program::Save()
 void Program::Load()
 {
 	short existingVersion;
-	EEPROM_readAnything(0, existingVersion);
+	int offset = EEPROM_readAnything(0, existingVersion);
 	if (Version != existingVersion)
 	{
 		Save();
 	}
 	else
 	{
-		int offset = sizeof(Version);
 		for (IPage* page : m_pages)
 		{
 			offset += page->ReadFromEepRom(offset);
@@ -160,7 +158,7 @@ void Program::DoAction()
 void Program::ChangePage()
 {
 	Program* program = Program::GetInstance();
-	for (int i = 0; i < COUNT_OF(program->m_pages); i++)
+	for (unsigned int i = 0; i < COUNT_OF(program->m_pages); i++)
 	{
 		if (program->m_currentPage == program->m_pages[i])
 		{

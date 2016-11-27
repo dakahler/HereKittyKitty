@@ -16,12 +16,12 @@ void StartHourPage::Update()
 
 int StartHourPage::WriteToEepRom(int offset)
 {
-	EEPROM_writeAnything(offset, m_startHour);
+	return EEPROM_writeAnything(offset, m_startHour);
 }
 
 int StartHourPage::ReadFromEepRom(int offset)
 {
-	EEPROM_readAnything(offset, m_startHour);
+	return EEPROM_readAnything(offset, m_startHour);
 }
 
 void StartHourPage::InvokeAction()

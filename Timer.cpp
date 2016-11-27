@@ -3,9 +3,8 @@
 
 Timer::Timer(unsigned long intervalMs, void(*callback)(void), int numIterations, bool startImmediately,
 	void(*onStartCallback)(void), void(*onStopCallback)(void))
-	: m_intervalMs(intervalMs), m_callback(callback), m_numRemainingIterations(numIterations),
-	  m_numOriginalIterations(numIterations), m_IsRunning(startImmediately),
-	  m_onStartCallback(onStartCallback), m_onStopCallback(onStopCallback)
+	: m_intervalMs(intervalMs), m_callback(callback), m_onStartCallback(onStartCallback), m_onStopCallback(onStopCallback),
+	  m_numRemainingIterations(numIterations), m_numOriginalIterations(numIterations), m_IsRunning(startImmediately)
 {
 	assert(m_intervalMs > 0);
 

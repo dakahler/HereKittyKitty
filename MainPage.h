@@ -29,12 +29,13 @@ public:
 private:
 	Timer m_motorFeedTimer;
 	byte& m_ouncesPerMeal;
+	static bool isFeeding;
 
-	const int c_stepsPerRevolution = 200;
-	const int c_compartmentsPerRevolution = 6;
-	const int c_stepsPerCompartment = c_stepsPerRevolution / c_compartmentsPerRevolution;
-	const int c_ouncesPerCompartment = 1;
-	const unsigned long c_feedSpeed = 25;
+	static const int c_stepsPerRevolution = 200;
+	static const int c_compartmentsPerRevolution = 6;
+	static const int c_stepsPerCompartment = c_stepsPerRevolution / c_compartmentsPerRevolution;
+	static const int c_ouncesPerCompartment = 1;
+	static const unsigned long c_feedSpeed = 25;
 
 	static EasyDriver s_easyDriver;
 	static AudioPlayer s_audioPlayer;

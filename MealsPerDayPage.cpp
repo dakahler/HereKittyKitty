@@ -16,12 +16,12 @@ void MealsPerDayPage::Update()
 
 int MealsPerDayPage::WriteToEepRom(int offset)
 {
-	EEPROM_writeAnything(offset, m_mealsPerDay);
+	return EEPROM_writeAnything(offset, m_mealsPerDay);
 }
 
 int MealsPerDayPage::ReadFromEepRom(int offset)
 {
-	EEPROM_readAnything(offset, m_mealsPerDay);
+	return EEPROM_readAnything(offset, m_mealsPerDay);
 }
 
 void MealsPerDayPage::InvokeAction()

@@ -21,6 +21,22 @@ public:
 	void Restart();
 	void SetInterval(unsigned long interval);
 	void SetIterations(int numIterations);
+	int GetIterations()
+	{
+		return m_numRemainingIterations;
+	}
+	bool GetIsRunning()
+	{
+		return m_IsRunning;
+	}
+	unsigned long GetTimeToFire()
+	{
+		return millis() - m_previousMillis;
+	}
+	unsigned long GetInterval()
+	{
+		return m_intervalMs;
+	}
 
 protected:
 	virtual void CallCallback();

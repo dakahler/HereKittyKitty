@@ -1,7 +1,7 @@
 #include "EasyDriver.h"
 
 EasyDriver::EasyDriver(int stepPin, int directionPin, int ms1Pin, int ms2Pin, int enabledPin,
-	bool useMicrostepping = true)
+	bool useMicrostepping)
 	: m_stepPin(stepPin), m_directionPin(directionPin), m_ms1Pin(ms1Pin), m_ms2Pin(ms2Pin),
 	  m_enabledPin(enabledPin), m_useMicrostepping(useMicrostepping)
 {

@@ -16,12 +16,12 @@ void OuncesPerMealPage::Update()
 
 int OuncesPerMealPage::WriteToEepRom(int offset)
 {
-	EEPROM_writeAnything(offset, m_ouncesPerMeal);
+	return EEPROM_writeAnything(offset, m_ouncesPerMeal);
 }
 
 int OuncesPerMealPage::ReadFromEepRom(int offset)
 {
-	EEPROM_readAnything(offset, m_ouncesPerMeal);
+	return EEPROM_readAnything(offset, m_ouncesPerMeal);
 }
 
 void OuncesPerMealPage::InvokeAction()

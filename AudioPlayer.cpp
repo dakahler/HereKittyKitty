@@ -5,7 +5,7 @@
 #include "AudioPlayer.h"
 #include <assert.h>
 
-AudioPlayer::AudioPlayer(const Tune& tune, int pin)
+AudioPlayer::AudioPlayer(Tune& tune, int pin)
 	: Timer(1, NULL, 1, false), m_tune(tune), m_pin(pin)
 {
 
