@@ -1,21 +1,13 @@
 #pragma once
 
-int hourFormat12(uint8_t t)
-{
-	if (t == 0)
-		return 12;
-	else if (t  > 12)
-		return t - 12;
-	else
-		return t;
-}
+#if defined(ARDUINO) && ARDUINO >= 100
+#include "arduino.h"
+#else
+#include "WProgram.h"
+#endif
 
-uint8_t isPM(uint8_t t)
-{
-	return (t >= 12);
-}
+#define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 
-uint8_t isAM(uint8_t t)
-{
-	return !isPM(t);
-}
+int hourFormat12(uint8_t t);
+uint8_t isPM(uint8_t t);
+uint8_t isAM(uint8_t t);

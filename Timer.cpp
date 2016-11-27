@@ -20,8 +20,6 @@ void Timer::Update()
 	if (!m_IsRunning || m_numRemainingIterations == 0)
 		return;
 
-	Serial.println(m_previousMillis);
-
 	if (millis() - m_previousMillis >= m_intervalMs)
 	{
 		FireNow();
