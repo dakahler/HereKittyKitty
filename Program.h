@@ -29,38 +29,38 @@ private:
 	static Program* m_instance;
 
 	static void DoAction();
-	static void ChangePage();
 	static void UpdateLcd();
 	static void StartMotor();
 	static void StopMotor();
 	static void StepMotor();
 	static void ExitSettings();
-	static void RecalculateMealTimes();
+	static void ChangePage();
 
-	static const int stepsPerRevolution = 200;
-	static const int compartmentsPerRevolution = 6;
-	static const int stepsPerCompartment = stepsPerRevolution / compartmentsPerRevolution;
-	static const int ouncesPerCompartment = 1;
+	void RecalculateMealTimes();
 
-	static const unsigned long feedSpeed = 25;
-	static const int maxOuncesPerMeal = 8;
-	static const int maxMealsPerDay = 8;
+	const int c_stepsPerRevolution = 200;
+	const int c_compartmentsPerRevolution = 6;
+	const int c_stepsPerCompartment = c_stepsPerRevolution / c_compartmentsPerRevolution;
+	const int c_ouncesPerCompartment = 1;
 
-	static RTC_DS1307 s_rtc;
-	static LiquidCrystalEx s_lcd;
-	static EasyDriver s_easyDriver;
+	const unsigned long c_feedSpeed = 25;
+	const int c_maxOuncesPerMeal = 8;
+	const int c_maxMealsPerDay = 8;
 
-	static uint8_t s_feedHours[12];
-	static int s_currentFeedIndex;
-	static int s_previousLoopHour;
+	RTC_DS1307 m_rtc;
+	LiquidCrystalEx m_lcd;
+	EasyDriver m_easyDriver;
 
-	static Timer s_updateLcdTimer;
-	static Timer s_motorFeedTimer;
-	static Timer s_exitSettingsTimer;
-	static ButtonPress s_actionButton;
-	static ButtonPress s_changePageButton;
+	uint8_t m_feedHours[12];
+	int m_currentFeedIndex;
+	int m_previousLoopHour;
 
-	static AudioPlayer s_audioPlayer;
+	Timer m_updateLcdTimer;
+	Timer m_motorFeedTimer;
+	Timer m_exitSettingsTimer;
+	ButtonPress m_actionButton;
+	ButtonPress m_changePageButton;
+	AudioPlayer m_audioPlayer;
 
 	enum Page
 	{
@@ -69,20 +69,15 @@ private:
 		MealsPerDay,
 		StartHour,
 		NumPages
-	};
+	} m_currentPage;
 
-	static Page s_currentPage;
-
-	struct eepromData
+	struct EepromData
 	{
 		short Version = 0x0101;
 		byte OuncesPerMeal = 4;
 		byte MealsPerDay = 5;
 		byte StartHour = 6;
-	};
-
-	static eepromData s_eepromData;
+	} m_eepromData;
 };
 
 #endif
-
