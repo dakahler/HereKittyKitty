@@ -1,5 +1,3 @@
-// Page.h
-
 #ifndef _PAGE_h
 #define _PAGE_h
 

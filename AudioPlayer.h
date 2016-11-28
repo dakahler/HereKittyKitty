@@ -1,5 +1,3 @@
-// AudioPlayer.h
-
 #ifndef _AUDIOPLAYER_h
 #define _AUDIOPLAYER_h
 

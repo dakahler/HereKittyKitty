@@ -1,5 +1,3 @@
-// ButtonPress.h
-
 #ifndef _BUTTONPRESS_h
 #define _BUTTONPRESS_h
 

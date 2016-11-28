@@ -148,8 +148,6 @@
     <ClInclude Include="__vm\.HereKittyKitty.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AudioPlayer.cpp" />
-    <ClCompile Include="ButtonPress.cpp" />
     <ClCompile Include="EasyDriver.cpp" />
     <ClCompile Include="LiquidCrystalEx.cpp" />
     <ClCompile Include="MainPage.cpp" />
@@ -157,9 +155,7 @@
     <ClCompile Include="OuncesPerMealPage.cpp" />
     <ClCompile Include="PageFactory.cpp" />
     <ClCompile Include="Program.cpp" />
-    <ClCompile Include="SimpleList.cpp" />
     <ClCompile Include="StartHourPage.cpp" />
-    <ClCompile Include="Timer.cpp" />
     <ClCompile Include="Util.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

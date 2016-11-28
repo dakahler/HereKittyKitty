@@ -1,5 +1,3 @@
-// Program.h
-
 #ifndef _PROGRAM_h
 #define _PROGRAM_h
 

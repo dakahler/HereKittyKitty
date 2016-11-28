@@ -1,5 +1,3 @@
-// LiquidCrystalEx.h
-
 #ifndef _LIQUIDCRYSTALEX_h
 #define _LIQUIDCRYSTALEX_h
 

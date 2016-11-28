@@ -119,9 +119,6 @@ protected:
 	int m_numRemainingIterations;
 	int m_numOriginalIterations;
 	bool m_IsRunning;
-
-private:
-	void EmptyCallback(const Timer& param) { }
 };
 
 #endif

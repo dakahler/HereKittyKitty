@@ -1,5 +1,3 @@
-// EasyDriver.h
-
 #ifndef _EASYDRIVER_h
 #define _EASYDRIVER_h
 

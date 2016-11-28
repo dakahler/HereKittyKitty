@@ -1,5 +1,3 @@
-// MainPage.h
-
 #ifndef _MAINPAGE_h
 #define _MAINPAGE_h
 
@@ -16,7 +14,6 @@
 
 class MainPage : public IPage
 {
-
 public:
 	MainPage(byte& ouncesPerMeal);
 

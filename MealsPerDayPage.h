@@ -29,7 +29,7 @@ public:
 private:
 	byte m_mealsPerDay = 4;
 
-	const int c_maxMealsPerDay = 8;
+	static const int c_maxMealsPerDay = 8;
 };
 
 #endif // _MEALSPERDAYPAGE_h
