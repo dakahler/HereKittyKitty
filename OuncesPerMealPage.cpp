@@ -6,7 +6,7 @@
 
 OuncesPerMealPage::OuncesPerMealPage()
 {
-
+	m_ouncesPerMeal = 4;
 }
 
 void OuncesPerMealPage::Update()

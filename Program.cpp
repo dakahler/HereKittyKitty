@@ -57,8 +57,6 @@ Program::Program()
 
 void Program::RecalculateMealTimes()
 {
-	Serial.println("Recalculating...");
-
 	const int feedInterval = 24 / m_mealsPerDayPage->GetMealsPerDay();
 	for (int i = 0; i < m_mealsPerDayPage->GetMealsPerDay(); i++)
 	{
@@ -101,6 +99,7 @@ void Program::Load()
 	int offset = EEPROM_readAnything(0, existingVersion);
 	if (Version != existingVersion)
 	{
+		Serial.println("Version mismatch!");
 		Save();
 	}
 	else

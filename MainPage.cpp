@@ -12,7 +12,7 @@ MainPage::MainPage(byte& ouncesPerMeal)
 		MethodSlot<MainPage, const Timer<MainPage>&>(this, &MainPage::StopMotor)),
 	m_ouncesPerMeal(ouncesPerMeal),
 	m_isFeeding(false),
-	m_easyDriver(2, 3, 4, 5, 6, false),
+	m_easyDriver(2, 3, 4, 5, 52, 6, true),
 	m_audioPlayer(song_smb, 30)
 {
 	
@@ -36,7 +36,8 @@ int MainPage::ReadFromEepRom(int offset) const
 
 void MainPage::InvokeAction()
 {
-	m_motorFeedTimer.SetIterations((m_ouncesPerMeal / c_ouncesPerCompartment) * c_stepsPerCompartment);
+	int iterations = (m_ouncesPerMeal / c_ouncesPerCompartment) * c_stepsPerCompartment * 2;
+	m_motorFeedTimer.SetIterations(iterations);
 	m_motorFeedTimer.Restart();
 }
 

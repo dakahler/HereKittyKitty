@@ -27,7 +27,7 @@ public:
 	}
 
 private:
-	byte m_ouncesPerMeal = 4;
+	byte m_ouncesPerMeal;
 
 	static const int c_maxOuncesPerMeal = 8;
 	friend class Program;

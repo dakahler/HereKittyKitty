@@ -24,7 +24,7 @@ public:
 
 	// HACK to support MainPage
 	template <class T, typename U>
-	static T* Create(U u)
+	static T* Create(U& u)
 	{
 		T* page = new T(u);
 		m_pages.push_back(page);

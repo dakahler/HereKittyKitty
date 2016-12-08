@@ -73,6 +73,11 @@ public:
 	{
 		m_numRemainingIterations = m_numOriginalIterations;
 		Start();
+
+		if (m_numRemainingIterations == 0)
+		{
+			Stop();
+		}
 	}
 
 	void SetInterval(unsigned long interval)
