@@ -80,8 +80,8 @@ private:
 		// divided by the note type.
 		//e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
 		int noteDuration = 1000 / currentNote.Duration;
-		noTone(m_pin);
-		tone(m_pin, currentNote._Note, noteDuration);
+		//noTone(m_pin);
+		//tone(m_pin, currentNote._Note, noteDuration);
 
 		int pauseBetweenNotesMs = noteDuration * 1.30;
 

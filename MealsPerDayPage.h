@@ -16,8 +16,8 @@ public:
 	MealsPerDayPage();
 
 	void Update() override;
-	int WriteToEepRom(int offset) const override;
-	int ReadFromEepRom(int offset) const override;
+	void WriteToEepRom(Preferences& preferences) const override;
+	void ReadFromEepRom(Preferences& preferences) override;
 	void InvokeAction() override;
 	void UpdateLcd(LiquidCrystalEx& lcd) override;
 

@@ -7,13 +7,12 @@
 	#include "WProgram.h"
 #endif
 
-#include <LiquidCrystal.h>
+#include <SSD1306.h>
 
-class LiquidCrystalEx : public LiquidCrystal
+class LiquidCrystalEx : public SSD1306
 {
 public:
-	LiquidCrystalEx(uint8_t rs, uint8_t enable,
-		uint8_t d0, uint8_t d1, uint8_t d2, uint8_t d3);
+	LiquidCrystalEx(uint8_t _address, uint8_t _sda, uint8_t _scl, uint8_t rst);
 
 	void Print(int x, int y, const char* str);
 	void Print(int x, int y, int num);

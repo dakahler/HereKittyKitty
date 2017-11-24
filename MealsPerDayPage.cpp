@@ -3,6 +3,7 @@
 #include "EEPRomAnything.h"
 #include "LiquidCrystalEx.h"
 #include "Program.h"
+#include <Preferences.h>
 
 MealsPerDayPage::MealsPerDayPage()
 {
@@ -14,14 +15,15 @@ void MealsPerDayPage::Update()
 	
 }
 
-int MealsPerDayPage::WriteToEepRom(int offset) const
+void MealsPerDayPage::WriteToEepRom(Preferences& preferences) const
 {
-	return EEPROM_writeAnything(offset, m_mealsPerDay);
+	preferences.putChar("MealsPerDay", m_mealsPerDay);
 }
 
-int MealsPerDayPage::ReadFromEepRom(int offset) const
+void MealsPerDayPage::ReadFromEepRom(Preferences& preferences)
 {
-	return EEPROM_readAnything(offset, m_mealsPerDay);
+	m_mealsPerDay = preferences.getChar("MealsPerDay", 4);
+	Serial.println(String("  Meals Per Day: ") + m_mealsPerDay);
 }
 
 void MealsPerDayPage::InvokeAction()
@@ -35,6 +37,7 @@ void MealsPerDayPage::InvokeAction()
 
 void MealsPerDayPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
+	lcd.clear();
 	lcd.Print(0, 0, "Meals Per Day:");
 	lcd.Print(0, 1, m_mealsPerDay);
 }

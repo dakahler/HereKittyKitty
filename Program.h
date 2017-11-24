@@ -8,7 +8,6 @@
 #endif
 
 #include "IUpdatable.h"
-#include <RTClib.h>
 #include "LiquidCrystalEx.h"
 #include "EasyDriver.h"
 #include "Timer.h"
@@ -40,12 +39,11 @@ private:
 	void Save();
 	void Load();
 
-	RTC_DS1307 m_rtc;
 	LiquidCrystalEx m_lcd;
 
 	uint8_t m_feedHours[12];
-	int m_currentFeedIndex;
-	int m_previousLoopHour;
+	int m_currentFeedIndex = 0;
+	int m_previousLoopHour = 0;
 
 	Timer<Program> m_updateLcdTimer;
 	Timer<Program> m_exitSettingsTimer;

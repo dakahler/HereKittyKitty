@@ -3,6 +3,7 @@
 #include "EEPRomAnything.h"
 #include "LiquidCrystalEx.h"
 #include "Program.h"
+#include <Preferences.h>
 
 StartHourPage::StartHourPage()
 {
@@ -14,14 +15,15 @@ void StartHourPage::Update()
 	
 }
 
-int StartHourPage::WriteToEepRom(int offset) const
+void StartHourPage::WriteToEepRom(Preferences& preferences) const
 {
-	return EEPROM_writeAnything(offset, m_startHour);
+	preferences.putChar("StartHour", m_startHour);
 }
 
-int StartHourPage::ReadFromEepRom(int offset) const
+void StartHourPage::ReadFromEepRom(Preferences& preferences)
 {
-	return EEPROM_readAnything(offset, m_startHour);
+	m_startHour = preferences.getChar("StartHour", 6);
+	Serial.println(String("  Start Hour: ") + m_startHour);
 }
 
 void StartHourPage::InvokeAction()
@@ -31,6 +33,7 @@ void StartHourPage::InvokeAction()
 
 void StartHourPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
+	lcd.clear();
 	lcd.Print(0, 0, "Start Hour:");
 	lcd.Print(0, 1, m_startHour);
 }

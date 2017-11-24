@@ -4,6 +4,8 @@
 #include "Song_SMB.h"
 #include "LiquidCrystalEx.h"
 #include "Program.h"
+#include <TimeLib.h>
+#include <Preferences.h>
 
 // TODO: Taking a reference from another page for a value here is really hacky
 MainPage::MainPage(byte& ouncesPerMeal)
@@ -12,7 +14,7 @@ MainPage::MainPage(byte& ouncesPerMeal)
 		MethodSlot<MainPage, const Timer<MainPage>&>(this, &MainPage::StopMotor)),
 	m_ouncesPerMeal(ouncesPerMeal),
 	m_isFeeding(false),
-	m_easyDriver(2, 3, 4, 5, 52, 6, true),
+	m_easyDriver(51, 53, 37, 39, 41, 35, true),
 	m_audioPlayer(song_smb, 30)
 {
 	
@@ -24,14 +26,14 @@ void MainPage::Update()
 	m_audioPlayer.Update();
 }
 
-int MainPage::WriteToEepRom(int offset) const
+void MainPage::WriteToEepRom(Preferences& preferences) const
 {
-	return 0;
+	
 }
 
-int MainPage::ReadFromEepRom(int offset) const
+void MainPage::ReadFromEepRom(Preferences& preferences)
 {
-	return 0;
+	
 }
 
 void MainPage::InvokeAction()
@@ -43,18 +45,20 @@ void MainPage::InvokeAction()
 
 void MainPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
-	DateTime now = RTC_DS1307::now();
+	time_t t = now();
 
 	char timeString[18];
 	sprintf(timeString, "%02d:%02d:%02d %s",
-		hourFormat12(now.hour()), now.minute(), now.second(), isAM(now.hour()) ? "AM" : "PM");
+		hourFormat12(t), minute(t), second(t), isAM(t) ? "AM" : "PM");
 
+	char nextString[18];
+	int hourInt = Program::GetInstance()->GetNextMealHour();
+	time_t nextMealHour = hourInt * SECS_PER_HOUR;
+	sprintf(nextString, "Next: %02d:00 %s", hourFormat12(nextMealHour), isAM(nextMealHour) ? "AM" : "PM");
+
+	lcd.clear();
 	lcd.Print(0, 0, timeString);
-
-	int nextMealHour = Program::GetInstance()->GetNextMealHour();
-	sprintf(timeString, "Next: %02d:00 %s", hourFormat12(nextMealHour), isAM(nextMealHour) ? "AM" : "PM");
-
-	lcd.Print(0, 1, timeString);
+	lcd.Print(0, 1, nextString);
 
 	if (m_isFeeding)
 	{

@@ -3,6 +3,7 @@
 #include "EEPRomAnything.h"
 #include "LiquidCrystalEx.h"
 #include "Program.h"
+#include <Preferences.h>
 
 OuncesPerMealPage::OuncesPerMealPage()
 {
@@ -14,14 +15,15 @@ void OuncesPerMealPage::Update()
 	
 }
 
-int OuncesPerMealPage::WriteToEepRom(int offset) const
+void OuncesPerMealPage::WriteToEepRom(Preferences& preferences) const
 {
-	return EEPROM_writeAnything(offset, m_ouncesPerMeal);
+	preferences.putChar("OuncesPerMeal", m_ouncesPerMeal);
 }
 
-int OuncesPerMealPage::ReadFromEepRom(int offset) const
+void OuncesPerMealPage::ReadFromEepRom(Preferences& preferences)
 {
-	return EEPROM_readAnything(offset, m_ouncesPerMeal);
+	m_ouncesPerMeal = preferences.getChar("OuncesPerMeal", 4);
+	Serial.println(String("  Ounces Per Meal: ") + m_ouncesPerMeal);
 }
 
 void OuncesPerMealPage::InvokeAction()
@@ -35,6 +37,7 @@ void OuncesPerMealPage::InvokeAction()
 
 void OuncesPerMealPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
+	lcd.clear();
 	lcd.Print(0, 0, "Ounces Per Meal:");
 	lcd.Print(0, 1, m_ouncesPerMeal);
 }
