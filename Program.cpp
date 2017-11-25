@@ -110,9 +110,7 @@ void Program::Load()
 
 void Program::Update()
 {
-	//Serial.println("update");
-	//Serial.print(m_currentFeedIndex);
-	time_t t = now(); // = m_rtc.now();
+	time_t t = now();
 	if (hour(t) != m_previousLoopHour)
 	{
 		m_previousLoopHour = hour(t);
@@ -139,8 +137,6 @@ void Program::Update()
 	m_actionButton.Update();
 	m_changePageButton.Update();
 	m_exitSettingsTimer.Update();
-
-	//Serial.println("updating pages");
 }
 
 int Program::GetNextMealHour() const
