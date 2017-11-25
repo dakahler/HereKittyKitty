@@ -30,9 +30,6 @@ private:
     const int timeZone = -8;  // Pacific Standard Time (USA)
     //const int timeZone = -7;  // Pacific Daylight Time (USA)
     const unsigned int localPort = 8888;  // local port to listen for UDP packets
-
-    
-    
 };
 
 #endif // _NTPMANAGER_h
