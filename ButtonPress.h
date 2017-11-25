@@ -34,6 +34,7 @@ public:
 			if (currentPinState != m_unpressedPinState)
 			{
 				m_callback(*this);
+				delay(5);
 			}
 		}
 	}

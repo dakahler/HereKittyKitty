@@ -10,7 +10,7 @@ LiquidCrystalEx::LiquidCrystalEx(uint8_t _address, uint8_t _sda, uint8_t _scl, u
 	  
 	init();
 	flipScreenVertically();
-	setFont(ArialMT_Plain_24);
+	setFont(ArialMT_Plain_16);
 
 	setColor(WHITE);
 	setTextAlignment(TEXT_ALIGN_LEFT);
@@ -20,13 +20,13 @@ LiquidCrystalEx::LiquidCrystalEx(uint8_t _address, uint8_t _sda, uint8_t _scl, u
 void LiquidCrystalEx::Print(int x, int y, const char* str)
 {
 	//clear();
-	drawString(5, y * 30, str);
+	drawString(5, y * 16, str);
 	display();
 }
 
 void LiquidCrystalEx::Print(int x, int y, int num)
 {
 	//clear();
-	drawString(5, y * 30, String(num));
+	drawString(5, y * 16, String(num));
 	display();
 }
