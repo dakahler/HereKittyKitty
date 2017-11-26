@@ -4,3 +4,4 @@ __vm/
 Release/
 .vs/
 .vscode/
+Secret.h
