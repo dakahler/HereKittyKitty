@@ -10,33 +10,38 @@
 #include "IUpdatable.h"
 #include <assert.h>
 #include "Callback.h"
+#include "InputDebounce.h"
 
 template <class T>
-class ButtonPress : public IUpdatable
+class ButtonPress : public InputDebounce, public IUpdatable
 {
 public:
 	ButtonPress(int pinNum, MethodSlot<T, const ButtonPress&> callback)
-		: m_pinNum(pinNum), m_callback(callback)
+		: InputDebounce(pinNum, 50, InputDebounce::PIM_INT_PULL_UP_RES, 0),
+		m_pinNum(pinNum), m_callback(callback)
 	{
-		pinMode(m_pinNum, INPUT_PULLUP);
-
-		// Assume pin state at init is the "unpressed" state
-		m_unpressedPinState = digitalRead(m_pinNum);
-		m_lastPinState = m_unpressedPinState;
+		
 	}
 
 	void Update() override
 	{
-		bool currentPinState = digitalRead(m_pinNum);
-		if (currentPinState != m_lastPinState)
-		{
-			m_lastPinState = currentPinState;
-			if (currentPinState != m_unpressedPinState)
-			{
-				m_callback(*this);
-				delay(5);
-			}
-		}
+		process(millis());
+	}
+
+protected:
+	void pressed() override
+	{
+		m_callback(*this);
+	}
+	
+	void released() override
+	{
+	  
+	}
+
+	void pressedDuration(unsigned long duration) override
+	{
+	  
 	}
 
 private:
