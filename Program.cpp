@@ -8,6 +8,15 @@
 #include "PageFactory.h"
 #include "NTPManager.h"
 #include "WifiManager.h"
+#include <IFTTTMaker.h>
+#include <WiFiClientSecure.h>
+#include "Secret.h"
+
+// TODO: Put key in config file
+#define EVENT_NAME "food"
+
+WiFiClientSecure client;
+IFTTTMaker ifttt(IFTTT_KEY, client);
 
 Preferences preferences;
 
@@ -30,8 +39,8 @@ Program::Program()
 	: m_lcd(0x3c, 4, 15, 16),
 	m_updateLcdTimer(1000ul, MethodSlot<Program, const Timer<Program>&>(this, &Program::UpdateLcd)),
 	m_exitSettingsTimer(60ul * 1000ul, MethodSlot<Program, const Timer<Program>&>(this, &Program::ExitSettings), 1, false),
-	m_actionButton(12, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::DoAction)),
-	m_changePageButton(14, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::ChangePage))
+	m_actionButton(17, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::DoAction)),
+	m_changePageButton(22, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::ChangePage))
 {
 	m_ouncesPerMealPage = PageFactory::Create<OuncesPerMealPage>();
 	m_mealsPerDayPage = PageFactory::Create<MealsPerDayPage>();
@@ -118,7 +127,8 @@ void Program::Update()
 		{
 			// Food!
 			Serial.println("Food!");
-			DoAction(m_actionButton);
+			m_mainPage->InvokeAction();
+			RecalculateMealTimes();
 			m_currentFeedIndex++;
 			if (m_currentFeedIndex >= m_mealsPerDayPage->GetMealsPerDay())
 			{
@@ -126,7 +136,6 @@ void Program::Update()
 			}
 		}
 	}
-
 	
 	for (IPage* page : PageFactory::GetPages())
 	{
@@ -150,6 +159,9 @@ void Program::DoAction(const ButtonPress<Program>& button)
 	program->m_currentPage->InvokeAction();
 	program->RecalculateMealTimes();
 	program->m_currentPage->UpdateLcd(program->m_lcd);
+
+	// TEST
+	ifttt.triggerEvent(EVENT_NAME);
 }
 
 void Program::ChangePage(const ButtonPress<Program>& button)
