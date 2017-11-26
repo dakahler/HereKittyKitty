@@ -29,11 +29,12 @@ void StartHourPage::ReadFromEepRom(Preferences& preferences)
 void StartHourPage::InvokeAction()
 {
 	m_startHour = (m_startHour + 1) % 24;
+	Serial.println(String("New start hour: ") + m_startHour);
 }
 
 void StartHourPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
 	lcd.clear();
-	lcd.Print(0, 0, "Start Hour:");
+	lcd.Print(0, 0, "Start Hour");
 	lcd.Print(0, 1, m_startHour);
 }

@@ -33,11 +33,13 @@ void OuncesPerMealPage::InvokeAction()
 	{
 		m_ouncesPerMeal = 1;
 	}
+
+	Serial.println(String("New ounces per meal: ") + m_ouncesPerMeal);
 }
 
 void OuncesPerMealPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
 	lcd.clear();
-	lcd.Print(0, 0, "Ounces Per Meal:");
+	lcd.Print(0, 0, "Ounces Per Meal");
 	lcd.Print(0, 1, m_ouncesPerMeal);
 }

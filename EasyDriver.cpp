@@ -5,28 +5,28 @@ EasyDriver::EasyDriver(int stepPin, int directionPin, int ms1Pin, int ms2Pin, in
 	: m_stepPin(stepPin), m_directionPin(directionPin), m_ms1Pin(ms1Pin), m_ms2Pin(ms2Pin), m_ms3Pin(ms3Pin),
 	  m_enabledPin(enabledPin), m_useMicrostepping(useMicrostepping)
 {
-	// pinMode(m_stepPin, OUTPUT);
-	// pinMode(m_directionPin, OUTPUT);
-	// pinMode(m_ms1Pin, OUTPUT);
-	// pinMode(m_ms2Pin, OUTPUT);
-	// pinMode(m_ms3Pin, OUTPUT);
-	// pinMode(m_enabledPin, OUTPUT);
+	pinMode(m_stepPin, OUTPUT);
+	pinMode(m_directionPin, OUTPUT);
+	pinMode(m_ms1Pin, OUTPUT);
+	pinMode(m_ms2Pin, OUTPUT);
+	pinMode(m_ms3Pin, OUTPUT);
+	pinMode(m_enabledPin, OUTPUT);
 
-	// ResetPins();
+	ResetPins();
 
-	// if (m_useMicrostepping)
-	// {
-	// 	// Pull MS1, and MS2 high to set logic to 1/8th microstep resolution
-	// 	digitalWrite(m_ms1Pin, HIGH);
-	// 	digitalWrite(m_ms2Pin, LOW);
-	// 	digitalWrite(m_ms3Pin, LOW);
-	// }
-	// else
-	// {
-	// 	digitalWrite(m_ms1Pin, LOW);
-	// 	digitalWrite(m_ms2Pin, LOW);
-	// 	digitalWrite(m_ms3Pin, LOW);
-	// }
+	if (m_useMicrostepping)
+	{
+		// Pull MS1, and MS2 high to set logic to 1/8th microstep resolution
+		digitalWrite(m_ms1Pin, HIGH);
+		digitalWrite(m_ms2Pin, LOW);
+		digitalWrite(m_ms3Pin, LOW);
+	}
+	else
+	{
+		digitalWrite(m_ms1Pin, LOW);
+		digitalWrite(m_ms2Pin, LOW);
+		digitalWrite(m_ms3Pin, LOW);
+	}
 }
 
 void EasyDriver::ResetPins() const

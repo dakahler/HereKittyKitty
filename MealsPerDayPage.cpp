@@ -33,11 +33,13 @@ void MealsPerDayPage::InvokeAction()
 	{
 		m_mealsPerDay = 1;
 	}
+
+	Serial.println(String("New meals per day: ") + m_mealsPerDay);
 }
 
 void MealsPerDayPage::UpdateLcd(LiquidCrystalEx& lcd)
 {
 	lcd.clear();
-	lcd.Print(0, 0, "Meals Per Day:");
+	lcd.Print(0, 0, "Meals Per Day");
 	lcd.Print(0, 1, m_mealsPerDay);
 }

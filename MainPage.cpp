@@ -14,7 +14,7 @@ MainPage::MainPage(byte& ouncesPerMeal)
 		MethodSlot<MainPage, const Timer<MainPage>&>(this, &MainPage::StopMotor)),
 	m_ouncesPerMeal(ouncesPerMeal),
 	m_isFeeding(false),
-	m_easyDriver(51, 53, 37, 39, 41, 35, true),
+	m_easyDriver(13, 21, 32, 33, 25, 35, true),
 	m_audioPlayer(song_smb, 30)
 {
 	
