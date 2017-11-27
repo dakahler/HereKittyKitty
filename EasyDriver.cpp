@@ -1,9 +1,9 @@
 #include "EasyDriver.h"
 
-EasyDriver::EasyDriver(int stepPin, int directionPin, int ms1Pin, int ms2Pin, int ms3Pin, int enabledPin,
-	bool useMicrostepping)
+EasyDriver::EasyDriver(int stepPin, int directionPin, int ms1Pin, int ms2Pin, int ms3Pin,
+	int enabledPin, int rstPin, int sleepPin, bool useMicrostepping)
 	: m_stepPin(stepPin), m_directionPin(directionPin), m_ms1Pin(ms1Pin), m_ms2Pin(ms2Pin), m_ms3Pin(ms3Pin),
-	  m_enabledPin(enabledPin), m_useMicrostepping(useMicrostepping)
+	  m_enabledPin(enabledPin), m_rstPin(rstPin), m_sleepPin(sleepPin), m_useMicrostepping(useMicrostepping)
 {
 	pinMode(m_stepPin, OUTPUT);
 	pinMode(m_directionPin, OUTPUT);
@@ -11,6 +11,8 @@ EasyDriver::EasyDriver(int stepPin, int directionPin, int ms1Pin, int ms2Pin, in
 	pinMode(m_ms2Pin, OUTPUT);
 	pinMode(m_ms3Pin, OUTPUT);
 	pinMode(m_enabledPin, OUTPUT);
+	pinMode(m_rstPin, OUTPUT);
+	pinMode(m_sleepPin, OUTPUT);
 
 	ResetPins();
 
@@ -37,11 +39,14 @@ void EasyDriver::ResetPins() const
 	digitalWrite(m_ms2Pin, LOW);
 	digitalWrite(m_ms3Pin, LOW);
 	digitalWrite(m_enabledPin, HIGH);
+	digitalWrite(m_rstPin, HIGH);
+	digitalWrite(m_sleepPin, LOW);
 }
 
 void EasyDriver::EnableMotor() const
 {
 	Serial.println("Enabling motor...");
+	digitalWrite(m_sleepPin, HIGH);
 	digitalWrite(m_enabledPin, LOW);
 }
 
@@ -49,6 +54,7 @@ void EasyDriver::DisableMotor() const
 {
 	Serial.println("Disabling motor...");
 	digitalWrite(m_enabledPin, HIGH);
+	digitalWrite(m_sleepPin, LOW);
 }
 
 void EasyDriver::SetDirection(bool forward) const

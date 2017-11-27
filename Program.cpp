@@ -12,7 +12,6 @@
 #include <WiFiClientSecure.h>
 #include "Secret.h"
 
-// TODO: Put key in config file
 #define EVENT_NAME "food"
 
 WiFiClientSecure client;
@@ -155,21 +154,22 @@ int Program::GetNextMealHour() const
 
 void Program::DoAction(const ButtonPress<Program>& button)
 {
-	Program* program = Program::GetInstance();
-	program->m_currentPage->InvokeAction();
-	program->RecalculateMealTimes();
-	program->m_currentPage->UpdateLcd(program->m_lcd);
+	m_currentPage->InvokeAction();
+	RecalculateMealTimes();
+	m_currentPage->UpdateLcd(m_lcd);
 
 	// TEST
-	ifttt.triggerEvent(EVENT_NAME);
+	if (!m_mainPage->IsRunning())
+	{
+		ifttt.triggerEvent(EVENT_NAME);
+	}
 }
 
 void Program::ChangePage(const ButtonPress<Program>& button)
 {
-	Program* program = Program::GetInstance();
 	for (unsigned int i = 0; i < PageFactory::GetPages().size(); i++)
 	{
-		if (program->m_currentPage == PageFactory::GetPages()[i])
+		if (m_currentPage == PageFactory::GetPages()[i])
 		{
 			unsigned int nextPage = i + 1;
 			if (nextPage == PageFactory::GetPages().size())
@@ -177,26 +177,24 @@ void Program::ChangePage(const ButtonPress<Program>& button)
 				nextPage = 0;
 			}
 
-			program->m_currentPage = PageFactory::GetPages()[nextPage];
+			m_currentPage = PageFactory::GetPages()[nextPage];
 			break;
 		}
 	}
 
-	program->m_exitSettingsTimer.Restart();
-	program->m_lcd.clear();
-	UpdateLcd(program->m_updateLcdTimer);
+	m_exitSettingsTimer.Restart();
+	m_lcd.clear();
+	UpdateLcd(m_updateLcdTimer);
 }
 
 void Program::UpdateLcd(const Timer<Program>& timer)
 {
-	Program* program = Program::GetInstance();
-	program->m_currentPage->UpdateLcd(program->m_lcd);
+	m_currentPage->UpdateLcd(m_lcd);
 }
 
 void Program::ExitSettings(const Timer<Program>& timer)
 {
-	Program* program = Program::GetInstance();
-	program->m_currentPage = program->m_mainPage;
-	program->m_lcd.clear();
-	program->Save();
+	m_currentPage = m_mainPage;
+	m_lcd.clear();
+	Save();
 }

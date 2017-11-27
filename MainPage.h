@@ -22,6 +22,7 @@ public:
 	void ReadFromEepRom(Preferences& preferences) override;
 	void InvokeAction() override;
 	void UpdateLcd(LiquidCrystalEx& lcd) override;
+	bool IsRunning() { return m_motorFeedTimer.GetIsRunning(); }
 
 private:
 	Timer<MainPage> m_motorFeedTimer;
