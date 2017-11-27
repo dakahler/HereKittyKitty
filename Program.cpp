@@ -3,21 +3,11 @@
 #include "Timer.h"
 #include <Wire.h>
 #include <TimeLib.h>
-#include <Preferences.h>
 #include "Util.h"
 #include "PageFactory.h"
 #include "NTPManager.h"
 #include "WifiManager.h"
-#include <IFTTTMaker.h>
-#include <WiFiClientSecure.h>
 #include "Secret.h"
-
-#define EVENT_NAME "food"
-
-WiFiClientSecure client;
-IFTTTMaker ifttt(IFTTT_KEY, client);
-
-Preferences preferences;
 
 Program* Program::m_instance = NULL;
 Program* Program::GetInstance()
@@ -36,6 +26,7 @@ Program* Program::GetInstance()
 
 Program::Program()
 	: m_lcd(0x3c, 4, 15, 16),
+	m_ifttt(m_iftttEventName, m_secureWifiClient),
 	m_updateLcdTimer(1000ul, MethodSlot<Program, const Timer<Program>&>(this, &Program::UpdateLcd)),
 	m_exitSettingsTimer(60ul * 1000ul, MethodSlot<Program, const Timer<Program>&>(this, &Program::ExitSettings), 1, false),
 	m_actionButton(17, MethodSlot<Program, const ButtonPress<Program>&>(this, &Program::DoAction)),
@@ -50,7 +41,7 @@ Program::Program()
 
 	m_currentPage = m_mainPage;
 
-	WifiManager::GetInstance()->Connect(&preferences);
+	WifiManager::GetInstance()->Connect(&m_preferences);
 	NTPManager::GetInstance()->Connect();
 
 	RecalculateMealTimes();
@@ -86,21 +77,21 @@ void Program::RecalculateMealTimes()
 
 void Program::Save()
 {
-	preferences.putShort("Version", Version);
+	m_preferences.putShort("Version", Version);
 	for (const IPage* page : PageFactory::GetPages())
 	{
-		page->WriteToEepRom(preferences);
+		page->WriteToEepRom(m_preferences);
 	}
 }
 
 void Program::Load()
 {
-	preferences.begin("herekittykitty", false);
+	m_preferences.begin("herekittykitty", false);
 
 	// Remove all preferences under opened namespace
   	//preferences.clear();
 
-	short existingVersion = preferences.getShort("Version", -1);
+	short existingVersion = m_preferences.getShort("Version", -1);
 	if (Version != existingVersion)
 	{
 		Serial.println("Version mismatch!");
@@ -111,7 +102,7 @@ void Program::Load()
 		Serial.println("Loading preferences...");
 		for (IPage* page : PageFactory::GetPages())
 		{
-			page->ReadFromEepRom(preferences);
+			page->ReadFromEepRom(m_preferences);
 		}
 	}
 }
@@ -133,6 +124,8 @@ void Program::Update()
 			{
 				m_currentFeedIndex = 0;
 			}
+
+			m_ifttt.triggerEvent(m_iftttEventName);
 		}
 	}
 	
@@ -157,12 +150,6 @@ void Program::DoAction(const ButtonPress<Program>& button)
 	m_currentPage->InvokeAction();
 	RecalculateMealTimes();
 	m_currentPage->UpdateLcd(m_lcd);
-
-	// TEST
-	if (!m_mainPage->IsRunning())
-	{
-		ifttt.triggerEvent(EVENT_NAME);
-	}
 }
 
 void Program::ChangePage(const ButtonPress<Program>& button)

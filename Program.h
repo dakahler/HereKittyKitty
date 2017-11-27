@@ -17,6 +17,9 @@
 #include "OuncesPerMealPage.h"
 #include "MealsPerDayPage.h"
 #include "StartHourPage.h"
+#include <IFTTTMaker.h>
+#include <WiFiClientSecure.h>
+#include <Preferences.h>
 
 class Program : public IUpdatable
 {
@@ -57,7 +60,13 @@ private:
 
 	IPage* m_currentPage = NULL;
 
-	short Version = 0x0102;
+	WiFiClientSecure m_secureWifiClient;
+	IFTTTMaker m_ifttt;
+	
+	Preferences m_preferences;
+
+	const String m_iftttEventName = "food";
+	const short Version = 0x0102;
 };
 
 #endif
